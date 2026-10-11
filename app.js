@@ -1,4 +1,4 @@
-/* HVL Lab viewer logic — plain script, no modules/fetch, works on file:// in all browsers. */
+/* HVL Lab viewer logic — pure ES5, zero dependencies, compatible with old college lab browsers (Firefox ESR, old Chrome, IE11+, file://) */
 (function () {
   'use strict';
 
@@ -15,6 +15,17 @@
 
   /* ---------- helpers ---------- */
 
+  function setHidden(el, hide) {
+    if (!el) return;
+    el.hidden = !!hide;
+    el.style.display = hide ? 'none' : 'block';
+  }
+
+  function isHidden(el) {
+    if (!el) return true;
+    return !!el.hidden || el.style.display === 'none';
+  }
+
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
@@ -25,23 +36,20 @@
     'input output inout logic bit reg wire signed unsigned int integer longint shortint byte ' +
     'string real time chandle event semaphore mailbox virtual extends implements ' +
     'rand randc randcase static automatic const ref new this super return break continue ' +
-    'if else case endcase default for while do repeat forever fork join join_any join_none ' +
+    'if else case casex casez endcase default for while do repeat forever fork join join_any join_none ' +
     'begin end always always_comb always_ff always_latch assign initial final ' +
     'posedge negedge edge typedef enum struct union packed localparam parameter ' +
     'import export timescale timeunit timeprecision assert assume cover expect ' +
     'bins binsof illegal_bins ignore_bins wildcard with inside dist null priority').split(' ');
 
-  // Single-pass highlight on escaped text so spans never nest.
-  // (Keywords are matched in the SAME pass — a second replace would also
-  // match words like "class" inside the inserted <span> tags and corrupt them.)
   function highlight(src) {
     var e = esc(src);
     var re = new RegExp(
-      '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)' +          // 1: comment
-      '|("(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\')' + // 2: string
-      '|(`[A-Za-z_]\\w*)' +                                // 3: preprocessor
-      '|(\\b\\d[\\w\'h_]*)' +                              // 4: number
-      '|\\b(' + KW.join('|') + ')\\b',                     // 5: keyword
+      '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)' +
+      '|("(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\')' +
+      '|(`[A-Za-z_]\\w*)' +
+      '|(\\b\\d[\\w\'h_]*)' +
+      '|\\b(' + KW.join('|') + ')\\b',
       'g');
     var out = '';
     var last = 0;
@@ -63,47 +71,94 @@
     toastEl.textContent = msg;
     toastEl.className = 'toast show';
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toastEl.className = 'toast'; }, 1800);
+    toastTimer = setTimeout(function () { toastEl.className = 'toast'; }, 2000);
   }
 
-  function copyText(text, label) {
+  function selectElementText(el) {
+    try {
+      if (window.getSelection && document.createRange) {
+        var sel = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        return true;
+      } else if (document.body.createTextRange) {
+        var textRange = document.body.createTextRange();
+        textRange.moveToElementText(el);
+        textRange.select();
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function copyText(text, label, fallbackCodeEl) {
     function done() { toast(label + ' copied'); }
     function fallback() {
       var ta = document.createElement('textarea');
       ta.value = text;
-      ta.setAttribute('readonly', '');
       ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '-9999px';
       ta.style.opacity = '0';
       document.body.appendChild(ta);
+      ta.focus();
       ta.select();
-      try { document.execCommand('copy'); done(); }
-      catch (err) { toast('Copy failed — select manually'); }
+      try { ta.setSelectionRange(0, ta.value.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
       document.body.removeChild(ta);
+      if (ok) {
+        done();
+      } else if (fallbackCodeEl && selectElementText(fallbackCodeEl)) {
+        toast('Code selected - press Ctrl+C to copy');
+      } else {
+        toast('Select code manually and press Ctrl+C');
+      }
     }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done, fallback);
-    } else {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else {
+        fallback();
+      }
+    } catch (e) {
       fallback();
     }
   }
 
   function download(filename, text) {
     try {
-      var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-      if (window.navigator && window.navigator.msSaveBlob) {
-        window.navigator.msSaveBlob(blob, filename);
+      var urlObj = window.URL || window.webkitURL;
+      if (typeof Blob !== 'undefined' && urlObj && urlObj.createObjectURL) {
+        var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        if (window.navigator && window.navigator.msSaveBlob) {
+          window.navigator.msSaveBlob(blob, filename);
+          toast(filename + ' downloaded');
+          return;
+        }
+        var url = urlObj.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', filename);
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+          document.body.removeChild(a);
+          urlObj.revokeObjectURL(url);
+        }, 150);
+        toast(filename + ' downloaded');
         return;
       }
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 100);
+      var dataA = document.createElement('a');
+      dataA.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+      dataA.setAttribute('download', filename);
+      dataA.style.display = 'none';
+      document.body.appendChild(dataA);
+      dataA.click();
+      document.body.removeChild(dataA);
       toast(filename + ' downloaded');
     } catch (err) {
       toast('Download not supported in this browser');
@@ -117,7 +172,7 @@
   /* ---------- home grid ---------- */
 
   function renderList() {
-    var q = search.value.trim().toLowerCase();
+    var q = (search.value || '').replace(/^\s+|\s+$/g, '').toLowerCase();
     grid.innerHTML = '';
     var shown = 0;
     for (var i = 0; i < exps.length; i++) {
@@ -132,13 +187,13 @@
       b.innerHTML =
         '<h3>' + esc(x.title) + '</h3>' +
         '<p>' + esc(x.desc) + '</p>' +
-        '<span class="meta">rtl/top.sv · tb/tb_top.sv</span>';
+        '<span class="meta">rtl/top.sv &middot; tb/tb_top.sv</span>';
       (function (id) {
         b.addEventListener('click', function () { openExp(id); });
       })(x.id);
       grid.appendChild(b);
     }
-    empty.hidden = shown !== 0;
+    setHidden(empty, shown !== 0);
     count.textContent = shown + ' / ' + exps.length;
   }
 
@@ -174,40 +229,48 @@
     fillPane('tbCode', 'tbGutter', x.tb);
     document.getElementById('rtlScroll').scrollTop = 0;
     document.getElementById('tbScroll').scrollTop = 0;
-    homeView.hidden = true;
-    detailView.hidden = false;
+    setHidden(homeView, true);
+    setHidden(detailView, false);
     try {
-      if ('replaceState' in history) history.replaceState(null, '', '#' + x.id);
-      else location.hash = x.id;
-    } catch (e) { /* file:// hash may throw in old browsers */ }
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', '#' + x.id);
+      } else {
+        location.hash = x.id;
+      }
+    } catch (e) {}
     window.scrollTo(0, 0);
-    document.getElementById('backBtn').focus();
+    try { document.getElementById('backBtn').focus(); } catch (e) {}
   }
 
   function goHome() {
     current = null;
-    detailView.hidden = true;
-    homeView.hidden = false;
+    setHidden(detailView, true);
+    setHidden(homeView, false);
     try {
-      if ('replaceState' in history) history.replaceState(null, '', location.pathname.split('/').pop() || ' ');
-    } catch (e) { /* ignore */ }
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', location.pathname + location.search);
+      } else {
+        location.hash = '';
+      }
+    } catch (e) {}
     window.scrollTo(0, 0);
-    search.focus();
+    try { search.focus(); } catch (e) {}
   }
 
   /* ---------- events ---------- */
 
   search.addEventListener('input', renderList);
+  search.addEventListener('keyup', renderList);
   document.getElementById('backBtn').addEventListener('click', goHome);
 
   document.getElementById('copyRtlBtn').addEventListener('click', function () {
-    if (current) copyText(current.rtl, 'RTL');
+    if (current) copyText(current.rtl, 'RTL', document.getElementById('rtlCode'));
   });
   document.getElementById('copyTbBtn').addEventListener('click', function () {
-    if (current) copyText(current.tb, 'Testbench');
+    if (current) copyText(current.tb, 'Testbench', document.getElementById('tbCode'));
   });
   document.getElementById('copyAllBtn').addEventListener('click', function () {
-    if (current) copyText(combinedText(current), 'RTL + TB');
+    if (current) copyText(combinedText(current), 'RTL + TB', document.getElementById('rtlCode'));
   });
   document.getElementById('dlRtlBtn').addEventListener('click', function () {
     if (current) download(safeName(current.title, '_rtl.sv'), current.rtl);
@@ -222,12 +285,16 @@
   });
 
   document.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Escape' && !detailView.hidden) goHome();
+    var k = ev.key || '';
+    var code = ev.keyCode || ev.which || 0;
+    if ((k === 'Escape' || k === 'Esc' || code === 27) && !isHidden(detailView)) {
+      goHome();
+    }
   });
 
   /* ---------- init ---------- */
 
   renderList();
-  var hash = (location.hash || '').replace('#', '');
+  var hash = (location.hash || '').replace(/^#/, '');
   if (hash) openExp(hash);
 })();

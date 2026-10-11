@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HVL Lab — SystemVerilog Experiments</title>
+<title>HVL Lab - SystemVerilog Experiments</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header class="topbar">
   <div class="brand">
-    <span class="brand-mark" aria-hidden="true">▣</span>
+    <span class="brand-mark" aria-hidden="true">[SV]</span>
     <div>
       <h1>HVL Lab</h1>
-      <p>SystemVerilog · RTL + Testbench</p>
+      <p>SystemVerilog &middot; RTL + Testbench</p>
     </div>
   </div>
   <div class="topbar-right">
-    <input id="search" type="search" placeholder="Search experiments…" aria-label="Search experiments" autocomplete="off">
+    <input id="search" type="text" placeholder="Search experiments..." aria-label="Search experiments" autocomplete="off">
     <span id="count" class="count" aria-live="polite"></span>
   </div>
 </header>
@@ -28,13 +29,13 @@
   <section id="homeView" aria-label="Experiment list">
     <h2 class="section-title">Select an experiment</h2>
     <div id="grid" class="grid"></div>
-    <p id="empty" class="empty" hidden>No experiments match your search.</p>
+    <p id="empty" class="empty" hidden style="display:none;">No experiments match your search.</p>
   </section>
 
   <!-- Detail / side-by-side code -->
-  <section id="detailView" hidden aria-label="Experiment code">
+  <section id="detailView" hidden style="display:none;" aria-label="Experiment code">
     <div class="detail-head">
-      <button id="backBtn" class="btn" type="button">← All experiments</button>
+      <button id="backBtn" class="btn" type="button">&larr; All experiments</button>
       <div class="detail-title">
         <h2 id="expTitle"></h2>
         <p id="expDesc"></p>
@@ -42,7 +43,7 @@
     </div>
 
     <div class="detail-actions">
-      <button id="copyAllBtn" class="btn primary" type="button">⧉ Copy RTL + TB</button>
+      <button id="copyAllBtn" class="btn primary" type="button">Copy RTL + TB</button>
       <button id="dlAllBtn" class="btn" type="button">Download both</button>
     </div>
 
@@ -54,7 +55,7 @@
             <span id="rtlName" class="file"></span>
           </div>
           <div class="pane-btns">
-            <button id="copyRtlBtn" class="btn small primary" type="button">⧉ Copy</button>
+            <button id="copyRtlBtn" class="btn small primary" type="button">Copy</button>
             <button id="dlRtlBtn" class="btn small ghost" type="button">.sv</button>
           </div>
         </div>
@@ -73,7 +74,7 @@
             <span id="tbName" class="file"></span>
           </div>
           <div class="pane-btns">
-            <button id="copyTbBtn" class="btn small primary" type="button">⧉ Copy</button>
+            <button id="copyTbBtn" class="btn small primary" type="button">Copy</button>
             <button id="dlTbBtn" class="btn small ghost" type="button">.sv</button>
           </div>
         </div>
@@ -90,7 +91,7 @@
 </main>
 
 <footer class="footer">
-  <span>Source: <code>~/Downloads/HVL_LAB</code> · each experiment = <code>rtl/top.sv</code> + <code>tb/tb_top.sv</code></span>
+  <span>Source: <code>HVL_LAB</code> &middot; each experiment = <code>rtl/top.sv</code> + <code>tb/tb_top.sv</code></span>
 </footer>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

@@ -1,4 +1,4 @@
-/* Auto-generated from ~/Downloads/HVL_LAB (comments stripped) — do not edit by hand. */
+/* Auto-generated from ~/Downloads/HVL_LAB (comments stripped) - do not edit by hand. */
 var EXPERIMENTS = [
  {
   "id": "alu",
@@ -47,7 +47,7 @@ var EXPERIMENTS = [
  },
  {
   "id": "tlc-1way",
-  "title": "Traffic Light Controller \u2014 1 Way",
+  "title": "Traffic Light Controller - 1 Way",
   "desc": "1-way traffic light controller with HVL testbench.",
   "rtlFile": "rtl/top.sv",
   "tbFile": "tb/tb_top.sv",
@@ -56,7 +56,7 @@ var EXPERIMENTS = [
  },
  {
   "id": "tlc-2way",
-  "title": "Traffic Light Controller \u2014 2 Way",
+  "title": "Traffic Light Controller - 2 Way",
   "desc": "2-way traffic light controller with HVL testbench.",
   "rtlFile": "rtl/top.sv",
   "tbFile": "tb/tb_top.sv",
