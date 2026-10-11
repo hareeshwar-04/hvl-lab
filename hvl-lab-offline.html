@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0e131d">
+<title>HVL Lab - SystemVerilog Experiments</title>
+<style>
+/* HVL Lab viewer — universal legacy-compatible stylesheet (works on old Firefox ESR, Chrome, IE11+, file://) */
+* { margin: 0; padding: 0; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+header, main, section, article, footer { display: block; }
+
+html { -webkit-text-size-adjust: 100%; background: #0e131d; color: #e6ebf4; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "DejaVu Sans", "Liberation Sans", Helvetica, Arial, sans-serif;
+  background: #0e131d;
+  color: #e6ebf4;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  background: #171f2e;
+  border-bottom: 1px solid #2a3547;
+  padding: 14px 20px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.brand {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-right: 16px;
+}
+.brand-mark {
+  font-family: "DejaVu Sans Mono", "Liberation Mono", Menlo, Consolas, monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #5b8cff;
+  background: #101724;
+  border: 1px solid #2a3547;
+  border-radius: 6px;
+  padding: 6px 8px;
+  line-height: 1;
+  margin-right: 12px;
+}
+.brand h1 { font-size: 20px; letter-spacing: -0.01em; color: #e6ebf4; }
+.brand p { font-size: 12.5px; color: #9aa7bd; }
+.topbar-right {
+  margin-left: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+#search {
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid #2a3547;
+  border-radius: 8px;
+  width: 240px;
+  max-width: 60vw;
+  background: #101724;
+  color: #e6ebf4;
+  margin-right: 10px;
+}
+#search:focus { outline: 2px solid #5b8cff; border-color: #5b8cff; }
+.count { font-size: 12.5px; color: #9aa7bd; white-space: nowrap; }
+
+/* ---------- layout ---------- */
+.wrap {
+  width: 1180px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 0 auto;
+  flex: 1 0 auto;
+}
+.section-title { font-size: 17px; margin-bottom: 14px; color: #e6ebf4; }
+
+/* ---------- cards (flexbox fallback for old browsers + grid) ---------- */
+.grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin: -7px;
+}
+.card {
+  font: inherit;
+  text-align: left;
+  background: #171f2e;
+  border: 1px solid #2a3547;
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 270px;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 250px;
+  flex: 1 1 250px;
+  margin: 7px;
+  color: #e6ebf4;
+  transition: border-color .12s, box-shadow .12s;
+}
+.card:hover, .card:focus {
+  border-color: #5b8cff;
+  box-shadow: 0 4px 16px rgba(29, 78, 216, .18);
+  outline: none;
+}
+.card h3 { font-size: 15.5px; margin-bottom: 6px; color: #e6ebf4; }
+.card p { font-size: 13px; color: #9aa7bd; margin-bottom: 8px; -webkit-box-flex: 1; -ms-flex: 1 0 auto; flex: 1 0 auto; }
+.card .meta {
+  font-size: 11.5px;
+  color: #9aa7bd;
+  font-family: "DejaVu Sans Mono", "Liberation Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+.empty { color: #9aa7bd; padding: 30px 0; }
+
+/* ---------- detail ---------- */
+.detail-head {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.detail-head #backBtn { margin-right: 14px; margin-bottom: 6px; }
+.detail-title h2 { font-size: 21px; letter-spacing: -0.01em; color: #e6ebf4; }
+.detail-title p { color: #9aa7bd; font-size: 13.5px; }
+.detail-actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 14px;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.detail-actions .btn { margin-right: 8px; margin-bottom: 6px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 1px solid #2a3547;
+  background: #171f2e;
+  color: #e6ebf4;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  display: inline-block;
+}
+.btn:hover { border-color: #9aa7bd; background: #212b40; }
+.btn.primary { background: #5b8cff; border-color: #5b8cff; color: #0b1220; }
+.btn.primary:hover { background: #7ba0ff; }
+.btn.ghost { background: transparent; }
+.btn.small { font-size: 12.5px; padding: 5px 11px; }
+
+/* ---------- side-by-side panes ---------- */
+.panes {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+}
+.pane {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 0%;
+  flex: 1 1 0%;
+  width: 49%;
+  min-width: 0;
+  background: #171f2e;
+  border: 1px solid #2a3547;
+  border-radius: 10px;
+  overflow: hidden;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+.pane + .pane { margin-left: 14px; }
+.pane-head {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #2a3547;
+  border-top: 3px solid #22d3ee;
+  background: #141b2a;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.pane-head.tb { border-top-color: #a78bfa; }
+.pane-head strong { font-size: 13.5px; color: #e6ebf4; }
+.pane-head .file {
+  font-family: "DejaVu Sans Mono", "Liberation Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: #9aa7bd;
+  margin-left: 8px;
+}
+.pane-btns {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.pane-btns .btn + .btn { margin-left: 6px; }
+
+/* ---------- code ---------- */
+.code-scroll { overflow: auto; max-height: 68vh; background: #0a0f1c; }
+.code-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  min-height: 100%;
+}
+.gutter {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  padding: 12px 10px 12px 14px;
+  text-align: right;
+  color: #64748b;
+  background: #070b14;
+  border-right: 1px solid #1a2334;
+  font-family: "DejaVu Sans Mono", "Liberation Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+  white-space: pre;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.code {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 0 auto;
+  flex: 1 0 auto;
+  padding: 12px 16px;
+  font-family: "DejaVu Sans Mono", "Liberation Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+  white-space: pre;
+  color: #e2e8f0;
+}
+.code .c-com { color: #7d8aa0; font-style: italic; }
+.code .c-str { color: #a5d6a7; }
+.code .c-pp  { color: #f0abfc; }
+.code .c-kw  { color: #93c5fd; }
+.code .c-num { color: #fbbf24; }
+
+/* ---------- footer + toast ---------- */
+.footer {
+  border-top: 1px solid #2a3547;
+  padding: 12px 20px;
+  font-size: 12px;
+  color: #9aa7bd;
+  background: #171f2e;
+}
+.footer code {
+  font-family: "DejaVu Sans Mono", "Liberation Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+  background: #111827;
+  border: 1px solid #5b8cff;
+  color: #ffffff;
+  font-size: 13.5px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .15s;
+  max-width: 90%;
+  z-index: 50;
+}
+.toast.show { opacity: 1; visibility: visible; }
+
+/* ---------- small screens: stack panes ---------- */
+@media (max-width: 900px) {
+  .panes {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+  .pane { width: 100%; }
+  .pane + .pane { margin-left: 0; margin-top: 14px; }
+  .code-scroll { max-height: none; }
+  #search { width: 100%; }
+  .topbar-right { width: 100%; margin-top: 10px; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">[SV]</span>
+    <div>
+      <h1>HVL Lab</h1>
+      <p>SystemVerilog &middot; RTL + Testbench</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <input id="search" type="text" placeholder="Search experiments..." aria-label="Search experiments" autocomplete="off">
+    <span id="count" class="count" aria-live="polite"></span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- Home / experiment picker -->
+  <section id="homeView" aria-label="Experiment list">
+    <h2 class="section-title">Select an experiment</h2>
+    <div id="grid" class="grid"></div>
+    <p id="empty" class="empty" hidden style="display:none;">No experiments match your search.</p>
+  </section>
+
+  <!-- Detail / side-by-side code -->
+  <section id="detailView" hidden style="display:none;" aria-label="Experiment code">
+    <div class="detail-head">
+      <button id="backBtn" class="btn" type="button">&larr; All experiments</button>
+      <div class="detail-title">
+        <h2 id="expTitle"></h2>
+        <p id="expDesc"></p>
+      </div>
+    </div>
+
+    <div class="detail-actions">
+      <button id="copyAllBtn" class="btn primary" type="button">Copy RTL + TB</button>
+      <button id="dlAllBtn" class="btn" type="button">Download both</button>
+    </div>
+
+    <div class="panes">
+      <article class="pane" aria-label="RTL code">
+        <div class="pane-head">
+          <div>
+            <strong>RTL</strong>
+            <span id="rtlName" class="file"></span>
+          </div>
+          <div class="pane-btns">
+            <button id="copyRtlBtn" class="btn small primary" type="button">Copy</button>
+            <button id="dlRtlBtn" class="btn small ghost" type="button">.sv</button>
+          </div>
+        </div>
+        <div class="code-scroll" id="rtlScroll">
+          <div class="code-row">
+            <div class="gutter" id="rtlGutter" aria-hidden="true"></div>
+            <pre class="code"><code id="rtlCode"></code></pre>
+          </div>
+        </div>
+      </article>
+
+      <article class="pane" aria-label="Testbench code">
+        <div class="pane-head tb">
+          <div>
+            <strong>Testbench</strong>
+            <span id="tbName" class="file"></span>
+          </div>
+          <div class="pane-btns">
+            <button id="copyTbBtn" class="btn small primary" type="button">Copy</button>
+            <button id="dlTbBtn" class="btn small ghost" type="button">.sv</button>
+          </div>
+        </div>
+        <div class="code-scroll" id="tbScroll">
+          <div class="code-row">
+            <div class="gutter" id="tbGutter" aria-hidden="true"></div>
+            <pre class="code"><code id="tbCode"></code></pre>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span>Source: <code>HVL_LAB</code> &middot; each experiment = <code>rtl/top.sv</code> + <code>tb/tb_top.sv</code></span>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Auto-generated from ~/Downloads/HVL_LAB (comments stripped) - do not edit by hand. */
+var EXPERIMENTS = [
+ {
+  "id": "alu",
+  "title": "ALU",
+  "desc": "8-bit ALU with HVL testbench (generator, driver, monitor, scoreboard).",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule alu_8bit (\n    input  logic [7:0] a,\n    input  logic [7:0] b,\n    input  logic [2:0] opcode,\n    output logic [7:0] result\n);\n\n    always_comb begin\n        case (opcode)\n            3'b000: result = a + b;\n            3'b001: result = a - b;\n            3'b010: result = a & b;\n            3'b011: result = a | b;\n            3'b100: result = a ^ b;\n            3'b101: result = ~(a & b);\n            3'b110: result = ~(a | b);\n            3'b111: result = ~(a ^ b);\n            default: result = 8'h00;\n        endcase\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface alu_if;\n\n    logic [7:0] a;\n    logic [7:0] b;\n    logic [2:0] opcode;\n    logic [7:0] result;\n\nendinterface\n\nclass alu_transaction;\n\n    rand bit [7:0] a;\n    rand bit [7:0] b;\n    rand bit [2:0] opcode;\n\n    logic [7:0] result;\n\nendclass\n\nclass alu_generator;\n\n    mailbox #(alu_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(alu_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        alu_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass alu_driver;\n\n    virtual alu_if vif;\n\n    mailbox #(alu_transaction) gen2drv;\n    mailbox #(alu_transaction) drv2mon;\n\n    int n;\n\n    function new\n    (\n        virtual alu_if vif,\n        mailbox #(alu_transaction) gen2drv,\n        mailbox #(alu_transaction) drv2mon,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.drv2mon = drv2mon;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        alu_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            vif.a      = tr.a;\n            vif.b      = tr.b;\n            vif.opcode = tr.opcode;\n\n            #1;\n\n            drv2mon.put(tr);\n\n            #1;\n\n        end\n\n    endtask\n\nendclass\n\nclass alu_monitor;\n\n    virtual alu_if vif;\n\n    mailbox #(alu_transaction) drv2mon;\n    mailbox #(alu_transaction) mon2sb;\n\n    int n;\n\n    function new\n    (\n        virtual alu_if vif,\n        mailbox #(alu_transaction) drv2mon,\n        mailbox #(alu_transaction) mon2sb,\n        int n\n    );\n\n        this.vif     = vif;\n        this.drv2mon = drv2mon;\n        this.mon2sb  = mon2sb;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        alu_transaction tr;\n\n        repeat(n)\n        begin\n\n            drv2mon.get(tr);\n\n            tr.result = vif.result;\n\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass alu_scoreboard;\n\n    mailbox #(alu_transaction) mon2sb;\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(alu_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        alu_transaction tr;\n\n        logic [7:0] exp_result;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            case(tr.opcode)\n\n                3'b000:\n                    exp_result = tr.a + tr.b;\n\n                3'b001:\n                    exp_result = tr.a - tr.b;\n\n                3'b010:\n                    exp_result = tr.a & tr.b;\n\n                3'b011:\n                    exp_result = tr.a | tr.b;\n\n                3'b100:\n                    exp_result = tr.a ^ tr.b;\n\n                3'b101:\n                    exp_result = ~(tr.a & tr.b);\n\n                3'b110:\n                    exp_result = ~(tr.a | tr.b);\n\n                3'b111:\n                    exp_result = ~(tr.a ^ tr.b);\n\n            endcase\n\n            if(tr.result === exp_result)\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: A=%h B=%h OP=%b Expected=%h Actual=%h\",\n                    tr.a,\n                    tr.b,\n                    tr.opcode,\n                    exp_result,\n                    tr.result\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n\n    endtask\n\nendclass\n\nclass alu_environment;\n\n    virtual alu_if vif;\n\n    mailbox #(alu_transaction) gen2drv;\n    mailbox #(alu_transaction) drv2mon;\n    mailbox #(alu_transaction) mon2sb;\n\n    alu_generator  gen;\n    alu_driver     drv;\n    alu_monitor    mon;\n    alu_scoreboard sb;\n\n    int n;\n\n    function new\n    (\n        virtual alu_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        drv2mon = new();\n        mon2sb  = new();\n\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            drv2mon,\n            n\n        );\n\n        mon = new(\n            vif,\n            drv2mon,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    alu_if intf();\n\n    alu_8bit dut\n    (\n        .a      (intf.a),\n        .b      (intf.b),\n        .opcode (intf.opcode),\n        .result (intf.result)\n    );\n\n    alu_environment env;\n\n    initial\n    begin\n\n        intf.a      = 8'b0;\n        intf.b      = 8'b0;\n        intf.opcode = 3'b0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "axi4-lite",
+  "title": "AXI4-Lite",
+  "desc": "AXI4-Lite slave with interface + randomized HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule axi4_lite_slave (\n    input  logic        aclk,\n    input  logic        aresetn,\n\n    input  logic [3:0]  awaddr,\n    input  logic        awvalid,\n    output logic        awready,\n\n    input  logic [31:0] wdata,\n    input  logic        wvalid,\n    output logic        wready,\n\n    output logic [1:0]  bresp,\n    output logic        bvalid,\n    input  logic        bready,\n\n    input  logic [3:0]  araddr,\n    input  logic        arvalid,\n    output logic        arready,\n\n    output logic [31:0] rdata,\n    output logic [1:0]  rresp,\n    output logic        rvalid,\n    input  logic        rready\n);\n\n    logic [31:0] register_file [0:15];\n    integer i;\n\n    always_ff @(posedge aclk) begin\n        if (!aresetn) begin\n            awready <= 1'b0;\n            wready  <= 1'b0;\n            bvalid  <= 1'b0;\n            bresp   <= 2'b00;\n            arready <= 1'b0;\n            rvalid  <= 1'b0;\n            rresp   <= 2'b00;\n            rdata   <= 32'h0000_0000;\n            for (i = 0; i < 16; i = i + 1)\n                register_file[i] <= 32'h0000_0000;\n        end\n        else begin\n\n            if (awvalid && wvalid) begin\n                awready               <= 1'b1;\n                wready                <= 1'b1;\n                register_file[awaddr] <= wdata;\n                bvalid                <= 1'b1;\n                bresp                 <= 2'b00;\n            end\n            else begin\n                awready <= 1'b0;\n                wready  <= 1'b0;\n                if (bready && bvalid)\n                    bvalid <= 1'b0;\n            end\n\n            if (arvalid) begin\n                arready <= 1'b1;\n                rdata   <= register_file[araddr];\n                rvalid  <= 1'b1;\n                rresp   <= 2'b00;\n            end\n            else begin\n                arready <= 1'b0;\n                if (rready && rvalid)\n                    rvalid <= 1'b0;\n            end\n        end\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface axi_if;\n\n    logic        clk;\n    logic        aresetn;\n\n    logic [3:0]  awaddr;\n    logic        awvalid;\n    logic        awready;\n\n    logic [31:0] wdata;\n    logic        wvalid;\n    logic        wready;\n\n    logic [1:0]  bresp;\n    logic        bvalid;\n    logic        bready;\n\n    logic [3:0]  araddr;\n    logic        arvalid;\n    logic        arready;\n\n    logic [31:0] rdata;\n    logic [1:0]  rresp;\n    logic        rvalid;\n    logic        rready;\n\nendinterface\n\nclass axi_transaction;\n\n    rand bit        write_en;\n    rand bit [3:0]  addr;\n    rand bit [31:0] wdata;\n\n    logic [31:0] rdata;\n    logic [1:0]  bresp;\n    logic [1:0]  rresp;\n    logic        bvalid;\n    logic        rvalid;\n\nendclass\n\nclass axi_generator;\n\n    mailbox #(axi_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(axi_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        axi_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass axi_driver;\n\n    virtual axi_if vif;\n\n    mailbox #(axi_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual axi_if vif,\n        mailbox #(axi_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        axi_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            if(tr.write_en)\n            begin\n                vif.awaddr  = tr.addr;\n                vif.awvalid = 1'b1;\n                vif.wdata   = tr.wdata;\n                vif.wvalid  = 1'b1;\n                vif.bready  = 1'b1;\n\n                vif.araddr  = 4'd0;\n                vif.arvalid = 1'b0;\n                vif.rready  = 1'b0;\n            end\n            else\n            begin\n                vif.araddr  = tr.addr;\n                vif.arvalid = 1'b1;\n                vif.rready  = 1'b1;\n\n                vif.awaddr  = 4'd0;\n                vif.awvalid = 1'b0;\n                vif.wdata   = 32'd0;\n                vif.wvalid  = 1'b0;\n                vif.bready  = 1'b0;\n            end\n\n        end\n\n    endtask\n\nendclass\n\nclass axi_monitor;\n\n    virtual axi_if vif;\n\n    mailbox #(axi_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual axi_if vif,\n        mailbox #(axi_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        axi_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.write_en = (vif.awvalid && vif.wvalid);\n            tr.addr     = tr.write_en ? vif.awaddr : vif.araddr;\n            tr.wdata    = vif.wdata;\n\n            #1;\n\n            tr.rdata  = vif.rdata;\n            tr.bresp  = vif.bresp;\n            tr.rresp  = vif.rresp;\n            tr.bvalid = vif.bvalid;\n            tr.rvalid = vif.rvalid;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass axi_scoreboard;\n\n    mailbox #(axi_transaction) mon2sb;\n\n    logic [31:0] ref_reg [0:15];\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(axi_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n        for(int i = 0; i < 16; i++)\n            ref_reg[i] = 32'h0000_0000;\n\n    endfunction\n\n    task run();\n\n        axi_transaction tr;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            if(tr.write_en)\n            begin\n\n                ref_reg[tr.addr] = tr.wdata;\n\n                if((tr.bvalid === 1'b1) && (tr.bresp === 2'b00))\n                    pass++;\n                else\n                begin\n                    fail++;\n                    $display(\"ERROR WRITE: ADDR=%h BVALID=%b BRESP=%b\", tr.addr, tr.bvalid, tr.bresp);\n                end\n\n            end\n\n            else\n            begin\n\n                if((tr.rvalid === 1'b1) &&\n                   (tr.rresp  === 2'b00) &&\n                   (tr.rdata  === ref_reg[tr.addr]))\n                begin\n\n                    pass++;\n\n                end\n\n                else\n                begin\n\n                    fail++;\n\n                    $display(\n                        \"ERROR READ: ADDR=%h Expected=%h Actual=%h\",\n                        tr.addr,\n                        ref_reg[tr.addr],\n                        tr.rdata\n                    );\n\n                end\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass axi_environment;\n\n    virtual axi_if vif;\n\n    mailbox #(axi_transaction) gen2drv;\n    mailbox #(axi_transaction) mon2sb;\n\n    axi_generator  gen;\n    axi_driver     drv;\n    axi_monitor    mon;\n    axi_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual axi_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    axi_if intf();\n\n    axi4_lite_slave dut\n    (\n        .aclk    (intf.clk),\n        .aresetn (intf.aresetn),\n        .awaddr  (intf.awaddr),\n        .awvalid (intf.awvalid),\n        .awready (intf.awready),\n        .wdata   (intf.wdata),\n        .wvalid  (intf.wvalid),\n        .wready  (intf.wready),\n        .bresp   (intf.bresp),\n        .bvalid  (intf.bvalid),\n        .bready  (intf.bready),\n        .araddr  (intf.araddr),\n        .arvalid (intf.arvalid),\n        .arready (intf.arready),\n        .rdata   (intf.rdata),\n        .rresp   (intf.rresp),\n        .rvalid  (intf.rvalid),\n        .rready  (intf.rready)\n    );\n\n    axi_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.aresetn = 0;\n        intf.awaddr  = 0;\n        intf.awvalid = 0;\n        intf.wdata   = 0;\n        intf.wvalid  = 0;\n        intf.bready  = 0;\n        intf.araddr  = 0;\n        intf.arvalid = 0;\n        intf.rready  = 0;\n\n        repeat(2)\n            @(posedge intf.clk);\n\n        #1;\n\n        intf.aresetn = 1;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "arbiter",
+  "title": "Arbiter",
+  "desc": "Fixed-priority arbiter with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule arbiter (\n    input  logic       clk,\n    input  logic       rst,\n    input  logic [3:0] req,\n    output logic [3:0] grant\n);\n\n    always_ff @(posedge clk) begin\n        if (rst) begin\n            grant <= 4'b0000;\n        end\n        else begin\n            casex (req)\n                4'b1xxx: grant <= 4'd8;\n                4'b01xx: grant <= 4'd4;\n                4'b001x: grant <= 4'd2;\n                4'b0001: grant <= 4'd1;\n                default: grant <= 4'd0;\n            endcase\n        end\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface arb_if;\n\n    logic       clk;\n    logic       rst;\n    logic [3:0] req;\n    logic [3:0] grant;\n\nendinterface\n\nclass arb_transaction;\n\n    rand bit [3:0] req;\n\n    logic [3:0] grant;\n\nendclass\n\nclass arb_generator;\n\n    mailbox #(arb_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(arb_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        arb_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass arb_driver;\n\n    virtual arb_if vif;\n\n    mailbox #(arb_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual arb_if vif,\n        mailbox #(arb_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        arb_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.req = tr.req;\n\n        end\n\n    endtask\n\nendclass\n\nclass arb_monitor;\n\n    virtual arb_if vif;\n\n    mailbox #(arb_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual arb_if vif,\n        mailbox #(arb_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        arb_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.req = vif.req;\n\n            #1;\n\n            tr.grant = vif.grant;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass arb_scoreboard;\n\n    mailbox #(arb_transaction) mon2sb;\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(arb_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        arb_transaction tr;\n        logic [3:0] exp_grant;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            casex(tr.req)\n                4'b1xxx: exp_grant = 4'd8;\n                4'b01xx: exp_grant = 4'd4;\n                4'b001x: exp_grant = 4'd2;\n                4'b0001: exp_grant = 4'd1;\n                default: exp_grant = 4'd0;\n            endcase\n\n            if(tr.grant === exp_grant)\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: REQ=%b Expected=%b Actual=%b\",\n                    tr.req,\n                    exp_grant,\n                    tr.grant\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass arb_environment;\n\n    virtual arb_if vif;\n\n    mailbox #(arb_transaction) gen2drv;\n    mailbox #(arb_transaction) mon2sb;\n\n    arb_generator  gen;\n    arb_driver     drv;\n    arb_monitor    mon;\n    arb_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual arb_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    arb_if intf();\n\n    arbiter dut\n    (\n        .clk   (intf.clk),\n        .rst   (intf.rst),\n        .req   (intf.req),\n        .grant (intf.grant)\n    );\n\n    arb_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.rst = 1;\n        intf.req = 0;\n\n        repeat(2)\n            @(posedge intf.clk);\n\n        #1;\n\n        intf.rst = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "fifo",
+  "title": "FIFO",
+  "desc": "Synchronous FIFO with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule synchronous_fifo #(\n    parameter DATA_WIDTH = 4,\n    parameter DEPTH      = 4,\n    parameter PTR_WIDTH  = $clog2(DEPTH)\n)(\n    input  logic                  clk,\n    input  logic                  rst,\n    input  logic                  wr_en,\n    input  logic                  rd_en,\n    input  logic [DATA_WIDTH-1:0] data_in,\n    output logic [DATA_WIDTH-1:0] data_out,\n    output logic                  full,\n    output logic                  empty\n);\n\n    logic [DATA_WIDTH-1:0] memory [0:DEPTH-1];\n    logic [PTR_WIDTH-1:0]  wr_ptr;\n    logic [PTR_WIDTH-1:0]  rd_ptr;\n    logic [$clog2(DEPTH+1)-1:0] count;\n    integer i;\n\n    always_comb begin\n        full  = (count == DEPTH);\n        empty = (count == 0);\n    end\n\n    always_ff @(posedge clk) begin\n        if (rst) begin\n            wr_ptr   <= '0;\n            rd_ptr   <= '0;\n            count    <= '0;\n            data_out <= '0;\n            for (i = 0; i < DEPTH; i = i + 1)\n                memory[i] <= '0;\n        end\n        else begin\n            if (wr_en && !full) begin\n                memory[wr_ptr] <= data_in;\n                if (wr_ptr == DEPTH - 1)\n                    wr_ptr <= '0;\n                else\n                    wr_ptr <= wr_ptr + 1'b1;\n            end\n\n            if (rd_en && !empty) begin\n                data_out <= memory[rd_ptr];\n                if (rd_ptr == DEPTH - 1)\n                    rd_ptr <= '0;\n                else\n                    rd_ptr <= rd_ptr + 1'b1;\n            end\n\n            case ({(wr_en && !full), (rd_en && !empty)})\n                2'b10:   count <= count + 1'b1;\n                2'b01:   count <= count - 1'b1;\n                2'b11:   count <= count;\n                default: count <= count;\n            endcase\n        end\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface fifo_if;\n\n    logic       clk;\n    logic       rst;\n    logic       wr_en;\n    logic       rd_en;\n    logic [3:0] data_in;\n\n    logic [3:0] data_out;\n    logic       full;\n    logic       empty;\n\nendinterface\n\nclass fifo_transaction;\n\n    rand bit       wr_en;\n    rand bit       rd_en;\n    rand bit [3:0] data_in;\n\n    logic [3:0] data_out;\n    logic       full;\n    logic       empty;\n\nendclass\n\nclass fifo_generator;\n\n    mailbox #(fifo_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(fifo_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        fifo_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass fifo_driver;\n\n    virtual fifo_if vif;\n\n    mailbox #(fifo_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual fifo_if vif,\n        mailbox #(fifo_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        fifo_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.wr_en   = tr.wr_en;\n            vif.rd_en   = tr.rd_en;\n            vif.data_in = tr.data_in;\n\n        end\n\n    endtask\n\nendclass\n\nclass fifo_monitor;\n\n    virtual fifo_if vif;\n\n    mailbox #(fifo_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual fifo_if vif,\n        mailbox #(fifo_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        fifo_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.wr_en   = vif.wr_en;\n            tr.rd_en   = vif.rd_en;\n            tr.data_in = vif.data_in;\n\n            #1;\n\n            tr.data_out = vif.data_out;\n            tr.full     = vif.full;\n            tr.empty    = vif.empty;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass fifo_scoreboard;\n\n    mailbox #(fifo_transaction) mon2sb;\n\n    bit [3:0] ref_q[$];\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(fifo_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        fifo_transaction tr;\n\n        bit [3:0] exp_data;\n\n        bit do_write;\n        bit do_read;\n\n        bit exp_full;\n        bit exp_empty;\n\n        int size_before;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            size_before = ref_q.size();\n\n            do_write =\n                tr.wr_en && (size_before < 4);\n\n            do_read =\n                tr.rd_en && (size_before > 0);\n\n            if(do_read)\n                exp_data = ref_q.pop_front();\n\n            if(do_write)\n                ref_q.push_back(tr.data_in);\n\n            exp_full  = (ref_q.size() == 4);\n            exp_empty = (ref_q.size() == 0);\n\n            if((tr.full  === exp_full)  &&\n               (tr.empty === exp_empty) &&\n               (!do_read ||\n                (tr.data_out === exp_data)))\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: WR=%b RD=%b DIN=%h DOUT=%h FULL=%b EMPTY=%b\",\n                    tr.wr_en,\n                    tr.rd_en,\n                    tr.data_in,\n                    tr.data_out,\n                    tr.full,\n                    tr.empty\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass fifo_environment;\n\n    virtual fifo_if vif;\n\n    mailbox #(fifo_transaction) gen2drv;\n    mailbox #(fifo_transaction) mon2sb;\n\n    fifo_generator  gen;\n    fifo_driver     drv;\n    fifo_monitor    mon;\n    fifo_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual fifo_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    fifo_if intf();\n\n    synchronous_fifo dut\n    (\n        .clk      (intf.clk),\n        .rst      (intf.rst),\n        .wr_en    (intf.wr_en),\n        .rd_en    (intf.rd_en),\n        .data_in  (intf.data_in),\n        .data_out (intf.data_out),\n        .full     (intf.full),\n        .empty    (intf.empty)\n    );\n\n    fifo_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.rst     = 1;\n        intf.wr_en   = 0;\n        intf.rd_en   = 0;\n        intf.data_in = 0;\n\n        repeat(2)\n            @(posedge intf.clk);\n\n        #1;\n\n        intf.rst = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "fsm",
+  "title": "FSM",
+  "desc": "Finite state machine (sequence detector style) with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule fsm_dut (\n    input  logic       clk,\n    input  logic       rst,\n    input  logic       in,\n    output logic       out,\n    output logic [1:0] state\n);\n\n    typedef enum logic [1:0] {\n        IDLE = 2'b00,\n        LOAD = 2'b01,\n        DONE = 2'b10\n    } state_t;\n\n    state_t current_state, next_state;\n\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst) begin\n            current_state <= IDLE;\n        end\n        else begin\n            current_state <= next_state;\n        end\n    end\n\n    always_comb begin\n        case (current_state)\n            IDLE: begin\n                if (in)\n                    next_state = LOAD;\n                else\n                    next_state = IDLE;\n            end\n\n            LOAD: begin\n                if (in)\n                    next_state = DONE;\n                else\n                    next_state = IDLE;\n            end\n\n            DONE: begin\n                if (!in)\n                    next_state = IDLE;\n                else\n                    next_state = DONE;\n            end\n\n            default: next_state = IDLE;\n        endcase\n    end\n\n    assign out   = (current_state == DONE);\n    assign state = current_state;\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface fsm_if;\n\n    logic       clk;\n    logic       rst;\n    logic       in;\n    logic       out;\n    logic [1:0] state;\n\nendinterface\n\nclass fsm_transaction;\n\n    rand bit in;\n\n    logic       out;\n    logic [1:0] state;\n\nendclass\n\nclass fsm_generator;\n\n    mailbox #(fsm_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(fsm_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        fsm_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass fsm_driver;\n\n    virtual fsm_if vif;\n\n    mailbox #(fsm_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual fsm_if vif,\n        mailbox #(fsm_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        fsm_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.in = tr.in;\n\n        end\n\n    endtask\n\nendclass\n\nclass fsm_monitor;\n\n    virtual fsm_if vif;\n\n    mailbox #(fsm_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual fsm_if vif,\n        mailbox #(fsm_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        fsm_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.in = vif.in;\n\n            #1;\n\n            tr.state = vif.state;\n            tr.out   = vif.out;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass fsm_scoreboard;\n\n    mailbox #(fsm_transaction) mon2sb;\n\n    logic [1:0] exp_state = 2'b00;\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(fsm_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        fsm_transaction tr;\n        logic exp_out;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            case(exp_state)\n                2'b00:   exp_state = tr.in ? 2'b01 : 2'b00;\n                2'b01:   exp_state = tr.in ? 2'b10 : 2'b00;\n                2'b10:   exp_state = tr.in ? 2'b10 : 2'b00;\n                default: exp_state = 2'b00;\n            endcase\n\n            exp_out = (exp_state == 2'b10);\n\n            if((tr.state === exp_state) && (tr.out === exp_out))\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: IN=%b Expected_State=%b,Out=%b Actual_State=%b,Out=%b\",\n                    tr.in,\n                    exp_state,\n                    exp_out,\n                    tr.state,\n                    tr.out\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass fsm_environment;\n\n    virtual fsm_if vif;\n\n    mailbox #(fsm_transaction) gen2drv;\n    mailbox #(fsm_transaction) mon2sb;\n\n    fsm_generator  gen;\n    fsm_driver     drv;\n    fsm_monitor    mon;\n    fsm_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual fsm_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    fsm_if intf();\n\n    fsm_dut dut\n    (\n        .clk   (intf.clk),\n        .rst   (intf.rst),\n        .in    (intf.in),\n        .out   (intf.out),\n        .state (intf.state)\n    );\n\n    fsm_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.rst = 1;\n        intf.in  = 0;\n\n        repeat(2)\n            @(posedge intf.clk);\n\n        #1;\n\n        intf.rst = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "tlc-1way",
+  "title": "Traffic Light Controller - 1 Way",
+  "desc": "1-way traffic light controller with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule traffic_light_controller (\n    input  logic       clk,\n    input  logic       rst,\n    output logic [2:0] light\n);\n\n    typedef enum logic [1:0] {\n        RED    = 2'b00,\n        GREEN  = 2'b01,\n        YELLOW = 2'b10\n    } state_t;\n\n    state_t     state;\n    logic [3:0] count;\n\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst) begin\n            state <= RED;\n            count <= 4'd0;\n        end\n        else begin\n            case (state)\n                RED: begin\n                    if (count == 4'd9) begin\n                        state <= GREEN;\n                        count <= 4'd0;\n                    end\n                    else begin\n                        count <= count + 4'd1;\n                    end\n                end\n\n                GREEN: begin\n                    if (count == 4'd9) begin\n                        state <= YELLOW;\n                        count <= 4'd0;\n                    end\n                    else begin\n                        count <= count + 4'd1;\n                    end\n                end\n\n                YELLOW: begin\n                    if (count == 4'd2) begin\n                        state <= RED;\n                        count <= 4'd0;\n                    end\n                    else begin\n                        count <= count + 4'd1;\n                    end\n                end\n\n                default: begin\n                    state <= RED;\n                    count <= 4'd0;\n                end\n            endcase\n        end\n    end\n\n    always_comb begin\n        case (state)\n            RED:     light = 3'b100;\n            GREEN:   light = 3'b001;\n            YELLOW:  light = 3'b010;\n            default: light = 3'b100;\n        endcase\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface tlc_if;\n\n    logic       clk;\n    logic       rst;\n    logic [2:0] light;\n\nendinterface\n\nclass tlc_transaction;\n\n    rand bit rst;\n\n    logic [2:0] light;\n\n    constraint rst_c\n    {\n        rst dist {0 := 97, 1 := 3};\n    }\n\nendclass\n\nclass tlc_generator;\n\n    mailbox #(tlc_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(tlc_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass tlc_driver;\n\n    virtual tlc_if vif;\n\n    mailbox #(tlc_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual tlc_if vif,\n        mailbox #(tlc_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.rst = tr.rst;\n\n        end\n\n    endtask\n\nendclass\n\nclass tlc_monitor;\n\n    virtual tlc_if vif;\n\n    mailbox #(tlc_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual tlc_if vif,\n        mailbox #(tlc_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.rst = vif.rst;\n\n            #1;\n\n            tr.light = vif.light;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass tlc_scoreboard;\n\n    mailbox #(tlc_transaction) mon2sb;\n\n    logic [1:0] exp_state = 2'b00;\n    logic [3:0] exp_count = 4'd0;\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(tlc_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n        logic [2:0] exp_light;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            if(tr.rst)\n            begin\n                exp_state = 2'b00;\n                exp_count = 4'd0;\n            end\n            else\n            begin\n                case(exp_state)\n                    2'b00: begin\n                        if(exp_count == 4'd9) begin\n                            exp_state = 2'b01;\n                            exp_count = 4'd0;\n                        end\n                        else begin\n                            exp_count = exp_count + 4'd1;\n                        end\n                    end\n                    2'b01: begin\n                        if(exp_count == 4'd9) begin\n                            exp_state = 2'b10;\n                            exp_count = 4'd0;\n                        end\n                        else begin\n                            exp_count = exp_count + 4'd1;\n                        end\n                    end\n                    2'b10: begin\n                        if(exp_count == 4'd2) begin\n                            exp_state = 2'b00;\n                            exp_count = 4'd0;\n                        end\n                        else begin\n                            exp_count = exp_count + 4'd1;\n                        end\n                    end\n                    default: begin\n                        exp_state = 2'b00;\n                        exp_count = 4'd0;\n                    end\n                endcase\n            end\n\n            case(exp_state)\n                2'b00:   exp_light = 3'b100;\n                2'b01:   exp_light = 3'b001;\n                2'b10:   exp_light = 3'b010;\n                default: exp_light = 3'b100;\n            endcase\n\n            if(tr.light === exp_light)\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: RST=%b Expected=%b Actual=%b\",\n                    tr.rst,\n                    exp_light,\n                    tr.light\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass tlc_environment;\n\n    virtual tlc_if vif;\n\n    mailbox #(tlc_transaction) gen2drv;\n    mailbox #(tlc_transaction) mon2sb;\n\n    tlc_generator  gen;\n    tlc_driver     drv;\n    tlc_monitor    mon;\n    tlc_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual tlc_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    tlc_if intf();\n\n    traffic_light_controller dut\n    (\n        .clk   (intf.clk),\n        .rst   (intf.rst),\n        .light (intf.light)\n    );\n\n    tlc_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.rst = 1;\n\n        repeat(2)\n            @(posedge intf.clk);\n\n        #1;\n\n        intf.rst = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "tlc-2way",
+  "title": "Traffic Light Controller - 2 Way",
+  "desc": "2-way traffic light controller with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule traffic_light_controller (\n    input  logic       clk,\n    input  logic       rst,\n    output logic [2:0] ns_light,\n    output logic [2:0] ew_light\n);\n\n    typedef enum logic [1:0] {\n        S0_NS_GRN_EW_RED = 2'b00,\n        S1_NS_YLW_EW_RED = 2'b01,\n        S2_NS_RED_EW_GRN = 2'b10,\n        S3_NS_RED_EW_YLW = 2'b11\n    } state_t;\n\n    state_t     state;\n    logic [3:0] count;\n\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst) begin\n            state <= S0_NS_GRN_EW_RED;\n            count <= 4'd0;\n        end\n        else begin\n            case (state)\n                S0_NS_GRN_EW_RED: begin\n                    if (count == 4'd9) begin\n                        state <= S1_NS_YLW_EW_RED;\n                        count <= 4'd0;\n                    end\n                    else begin\n                        count <= count + 4'd1;\n                    end\n                end\n\n                S1_NS_YLW_EW_RED: begin\n                    if (count == 4'd2) begin\n                        state <= S2_NS_RED_EW_GRN;\n                        count <= 4'd0;\n                    end\n                    else begin\n                        count <= count + 4'd1;\n                    end\n                end\n\n                S2_NS_RED_EW_GRN: begin\n                    if (count == 4'd9) begin\n                        state <= S3_NS_RED_EW_YLW;\n                        count <= 4'd0;\n                    end\n                    else begin\n                        count <= count + 4'd1;\n                    end\n                end\n\n                S3_NS_RED_EW_YLW: begin\n                    if (count == 4'd2) begin\n                        state <= S0_NS_GRN_EW_RED;\n                        count <= 4'd0;\n                    end\n                    else begin\n                        count <= count + 4'd1;\n                    end\n                end\n\n                default: begin\n                    state <= S0_NS_GRN_EW_RED;\n                    count <= 4'd0;\n                end\n            endcase\n        end\n    end\n\n    always_comb begin\n        case (state)\n            S0_NS_GRN_EW_RED: begin\n                ns_light = 3'b001;\n                ew_light = 3'b100;\n            end\n            S1_NS_YLW_EW_RED: begin\n                ns_light = 3'b010;\n                ew_light = 3'b100;\n            end\n            S2_NS_RED_EW_GRN: begin\n                ns_light = 3'b100;\n                ew_light = 3'b001;\n            end\n            S3_NS_RED_EW_YLW: begin\n                ns_light = 3'b100;\n                ew_light = 3'b010;\n            end\n            default: begin\n                ns_light = 3'b100;\n                ew_light = 3'b100;\n            end\n        endcase\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface tlc_if;\n\n    logic       clk;\n    logic       rst;\n    logic [2:0] ns_light;\n    logic [2:0] ew_light;\n\nendinterface\n\nclass tlc_transaction;\n\n    rand bit rst;\n\n    logic [2:0] ns_light;\n    logic [2:0] ew_light;\n\n    constraint rst_c\n    {\n        rst dist {0 := 97, 1 := 3};\n    }\n\nendclass\n\nclass tlc_generator;\n\n    mailbox #(tlc_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(tlc_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass tlc_driver;\n\n    virtual tlc_if vif;\n\n    mailbox #(tlc_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual tlc_if vif,\n        mailbox #(tlc_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.rst = tr.rst;\n\n        end\n\n    endtask\n\nendclass\n\nclass tlc_monitor;\n\n    virtual tlc_if vif;\n\n    mailbox #(tlc_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual tlc_if vif,\n        mailbox #(tlc_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.rst = vif.rst;\n\n            #1;\n\n            tr.ns_light = vif.ns_light;\n            tr.ew_light = vif.ew_light;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass tlc_scoreboard;\n\n    mailbox #(tlc_transaction) mon2sb;\n\n    logic [1:0] exp_state = 2'b00;\n    logic [3:0] exp_count = 4'd0;\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(tlc_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        tlc_transaction tr;\n        logic [2:0] exp_ns, exp_ew;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            if(tr.rst)\n            begin\n                exp_state = 2'b00;\n                exp_count = 4'd0;\n            end\n            else\n            begin\n                case(exp_state)\n                    2'b00: begin\n                        if(exp_count == 4'd9) begin\n                            exp_state = 2'b01;\n                            exp_count = 4'd0;\n                        end\n                        else begin\n                            exp_count = exp_count + 4'd1;\n                        end\n                    end\n                    2'b01: begin\n                        if(exp_count == 4'd2) begin\n                            exp_state = 2'b10;\n                            exp_count = 4'd0;\n                        end\n                        else begin\n                            exp_count = exp_count + 4'd1;\n                        end\n                    end\n                    2'b10: begin\n                        if(exp_count == 4'd9) begin\n                            exp_state = 2'b11;\n                            exp_count = 4'd0;\n                        end\n                        else begin\n                            exp_count = exp_count + 4'd1;\n                        end\n                    end\n                    2'b11: begin\n                        if(exp_count == 4'd2) begin\n                            exp_state = 2'b00;\n                            exp_count = 4'd0;\n                        end\n                        else begin\n                            exp_count = exp_count + 4'd1;\n                        end\n                    end\n                    default: begin\n                        exp_state = 2'b00;\n                        exp_count = 4'd0;\n                    end\n                endcase\n            end\n\n            case(exp_state)\n                2'b00: begin exp_ns = 3'b001; exp_ew = 3'b100; end\n                2'b01: begin exp_ns = 3'b010; exp_ew = 3'b100; end\n                2'b10: begin exp_ns = 3'b100; exp_ew = 3'b001; end\n                2'b11: begin exp_ns = 3'b100; exp_ew = 3'b010; end\n            endcase\n\n            if((tr.ns_light === exp_ns) && (tr.ew_light === exp_ew))\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: RST=%b Exp_NS=%b,EW=%b Act_NS=%b,EW=%b\",\n                    tr.rst,\n                    exp_ns,\n                    exp_ew,\n                    tr.ns_light,\n                    tr.ew_light\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n\n    endtask\n\nendclass\n\nclass tlc_environment;\n\n    virtual tlc_if vif;\n\n    mailbox #(tlc_transaction) gen2drv;\n    mailbox #(tlc_transaction) mon2sb;\n\n    tlc_generator  gen;\n    tlc_driver     drv;\n    tlc_monitor    mon;\n    tlc_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual tlc_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    tlc_if intf();\n\n    traffic_light_controller dut\n    (\n        .clk      (intf.clk),\n        .rst      (intf.rst),\n        .ns_light (intf.ns_light),\n        .ew_light (intf.ew_light)\n    );\n\n    tlc_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.rst = 1;\n\n        repeat(2)\n            @(posedge intf.clk);\n\n        #1;\n\n        intf.rst = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "uart",
+  "title": "UART",
+  "desc": "UART TX/RX with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule uart_top #(\n    parameter CLK_FREQ  = 96000,\n    parameter BAUD_RATE = 9600\n)(\n    input  logic       clk,\n    input  logic       rst,\n    input  logic       tx_start,\n    input  logic [7:0] tx_data,\n    input  logic       rx,\n    output logic       tx,\n    output logic [7:0] rx_data,\n    output logic       tx_done,\n    output logic       rx_done\n);\n\n    localparam CLKS_PER_BIT = CLK_FREQ / BAUD_RATE;\n\n    typedef enum logic [1:0] {\n        IDLE  = 2'b00,\n        START = 2'b01,\n        DATA  = 2'b10,\n        STOP  = 2'b11\n    } state_t;\n\n    state_t      tx_state, rx_state;\n    logic [2:0]  tx_idx, rx_idx;\n    logic [7:0]  tx_reg, rx_reg;\n    logic [15:0] baud_cnt;\n    logic        baud_tick;\n\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst) begin\n            baud_cnt  <= 16'd0;\n            baud_tick <= 1'b0;\n        end\n        else if (baud_cnt == CLKS_PER_BIT - 1) begin\n            baud_cnt  <= 16'd0;\n            baud_tick <= 1'b1;\n        end\n        else begin\n            baud_cnt  <= baud_cnt + 1'b1;\n            baud_tick <= 1'b0;\n        end\n    end\n\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst) begin\n            tx_state <= IDLE;\n            tx       <= 1'b1;\n            tx_done  <= 1'b0;\n            tx_idx   <= 3'd0;\n            tx_reg   <= 8'h00;\n        end\n        else begin\n            tx_done <= 1'b0;\n            case (tx_state)\n                IDLE: begin\n                    tx     <= 1'b1;\n                    tx_idx <= 3'd0;\n                    if (tx_start) begin\n                        tx_reg   <= tx_data;\n                        tx_state <= START;\n                    end\n                end\n\n                START: begin\n                    if (baud_tick) begin\n                        tx       <= 1'b0;\n                        tx_state <= DATA;\n                    end\n                end\n\n                DATA: begin\n                    if (baud_tick) begin\n                        tx <= tx_reg[tx_idx];\n                        if (tx_idx == 3'd7) begin\n                            tx_idx   <= 3'd0;\n                            tx_state <= STOP;\n                        end\n                        else begin\n                            tx_idx <= tx_idx + 1'b1;\n                        end\n                    end\n                end\n\n                STOP: begin\n                    if (baud_tick) begin\n                        tx       <= 1'b1;\n                        tx_done  <= 1'b1;\n                        tx_state <= IDLE;\n                    end\n                end\n\n                default: tx_state <= IDLE;\n            endcase\n        end\n    end\n\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst) begin\n            rx_state <= IDLE;\n            rx_data  <= 8'h00;\n            rx_done  <= 1'b0;\n            rx_idx   <= 3'd0;\n            rx_reg   <= 8'h00;\n        end\n        else begin\n            rx_done <= 1'b0;\n            case (rx_state)\n                IDLE: begin\n                    rx_idx <= 3'd0;\n                    if (baud_tick && rx == 1'b0) begin\n                        rx_state <= DATA;\n                    end\n                end\n\n                DATA: begin\n                    if (baud_tick) begin\n                        rx_reg[rx_idx] <= rx;\n                        if (rx_idx == 3'd7) begin\n                            rx_idx   <= 3'd0;\n                            rx_state <= STOP;\n                        end\n                        else begin\n                            rx_idx <= rx_idx + 1'b1;\n                        end\n                    end\n                end\n\n                STOP: begin\n                    if (baud_tick) begin\n                        if (rx == 1'b1) begin\n                            rx_data <= rx_reg;\n                            rx_done <= 1'b1;\n                        end\n                        rx_state <= IDLE;\n                    end\n                end\n\n                default: rx_state <= IDLE;\n            endcase\n        end\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface uart_if (input logic clk);\n    logic       rst;\n    logic       tx_start;\n    logic [7:0] tx_data;\n    logic       rx;\n    logic       tx;\n    logic [7:0] rx_data;\n    logic       tx_done;\n    logic       rx_done;\nendinterface\n\nclass transaction;\n    rand bit [7:0] tx_data;\n    logic    [7:0] rx_data;\n    logic          tx_done;\n    logic          rx_done;\nendclass\n\nclass generator;\n    mailbox #(transaction) gen2drv;\n    int n;\n\n    function new(mailbox #(transaction) gen2drv, int n);\n        this.gen2drv = gen2drv;\n        this.n       = n;\n    endfunction\n\n    task run();\n        transaction tr;\n        repeat (n) begin\n            tr = new();\n            if (!tr.randomize())\n                $display(\"Randomization failed\");\n            gen2drv.put(tr);\n        end\n    endtask\nendclass\n\nclass driver;\n    virtual uart_if vif;\n    mailbox #(transaction) gen2drv;\n    int n;\n\n    function new(virtual uart_if vif, mailbox #(transaction) gen2drv, int n);\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n    endfunction\n\n    task run();\n        transaction tr;\n        vif.tx_start = 1'b0;\n        vif.tx_data  = 8'h00;\n        repeat (n) begin\n            gen2drv.get(tr);\n            @(negedge vif.clk);\n            vif.tx_data  = tr.tx_data;\n            vif.tx_start = 1'b1;\n            @(negedge vif.clk);\n            vif.tx_start = 1'b0;\n            @(posedge vif.rx_done);\n        end\n    endtask\nendclass\n\nclass monitor;\n    virtual uart_if vif;\n    mailbox #(transaction) mon2scb;\n    int n;\n\n    function new(virtual uart_if vif, mailbox #(transaction) mon2scb, int n);\n        this.vif     = vif;\n        this.mon2scb = mon2scb;\n        this.n       = n;\n    endfunction\n\n    task run();\n        transaction tr;\n        repeat (n) begin\n            @(posedge vif.clk);\n            #1;\n            while (!vif.rx_done) begin\n                @(posedge vif.clk);\n                #1;\n            end\n            tr = new();\n            tr.tx_data = vif.tx_data;\n            tr.rx_data = vif.rx_data;\n            tr.tx_done = vif.tx_done;\n            tr.rx_done = vif.rx_done;\n            mon2scb.put(tr);\n        end\n    endtask\nendclass\n\nclass scoreboard;\n    mailbox #(transaction) mon2scb;\n    int n;\n    int pass_cnt = 0;\n    int fail_cnt = 0;\n\n    function new(mailbox #(transaction) mon2scb, int n);\n        this.mon2scb = mon2scb;\n        this.n       = n;\n    endfunction\n\n    task run();\n        transaction tr;\n        repeat (n) begin\n            mon2scb.get(tr);\n            if (tr.rx_data === tr.tx_data && tr.rx_done === 1'b1)\n                pass_cnt++;\n            else begin\n                fail_cnt++;\n                $display(\"FAIL: exp=%0h act=%0h\", tr.tx_data, tr.rx_data);\n            end\n        end\n        $display(\"PASS = %0d | FAIL = %0d\", pass_cnt, fail_cnt);\n    endtask\nendclass\n\nclass environment;\n    generator  gen;\n    driver     drv;\n    monitor    mon;\n    scoreboard scb;\n    mailbox #(transaction) gen2drv;\n    mailbox #(transaction) mon2scb;\n    virtual uart_if vif;\n    int n;\n\n    function new(virtual uart_if vif, int n);\n        this.vif = vif;\n        this.n   = n;\n        gen2drv  = new();\n        mon2scb  = new();\n        gen      = new(gen2drv, n);\n        drv      = new(vif, gen2drv, n);\n        mon      = new(vif, mon2scb, n);\n        scb      = new(mon2scb, n);\n    endfunction\n\n    task run();\n        fork\n            gen.run();\n            drv.run();\n            mon.run();\n            scb.run();\n        join\n    endtask\nendclass\n\nmodule tb_top;\n    logic clk = 0;\n    always #5 clk = ~clk;\n\n    uart_if intf(clk);\n\n    uart_top #(\n        .CLK_FREQ  (96000),\n        .BAUD_RATE (9600)\n    ) dut (\n        .clk      (intf.clk),\n        .rst      (intf.rst),\n        .tx_start (intf.tx_start),\n        .tx_data  (intf.tx_data),\n        .rx       (intf.tx),\n        .tx       (intf.tx),\n        .rx_data  (intf.rx_data),\n        .tx_done  (intf.tx_done),\n        .rx_done  (intf.rx_done)\n    );\n\n    environment env;\n\n    initial begin\n        intf.rst      = 1;\n        intf.tx_start = 0;\n        intf.tx_data  = 0;\n        repeat (2) @(posedge clk);\n        #1;\n        intf.rst = 0;\n\n        env = new(intf, 100);\n        env.run();\n        #20;\n        $finish;\n    end\nendmodule\n"
+ },
+ {
+  "id": "usr",
+  "title": "Universal Shift Register",
+  "desc": "Universal shift register with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule universal_shift_register (\n    input  logic       clk,\n    input  logic       rst,\n    input  logic [1:0] sel,\n    input  logic       sin_left,\n    input  logic       sin_right,\n    input  logic [3:0] pdata,\n    output logic [3:0] q\n);\n\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst) begin\n            q <= 4'b0000;\n        end\n        else begin\n            case (sel)\n                2'b00:   q <= q;\n                2'b01:   q <= {sin_left, q[3:1]};\n                2'b10:   q <= {q[2:0], sin_right};\n                2'b11:   q <= pdata;\n                default: q <= q;\n            endcase\n        end\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface usr_if;\n\n    logic       clk;\n    logic       rst;\n    logic [1:0] sel;\n    logic       sin_left;\n    logic       sin_right;\n    logic [3:0] pdata;\n    logic [3:0] q;\n\nendinterface\n\nclass usr_transaction;\n\n    rand bit [1:0] sel;\n    rand bit       sin_left;\n    rand bit       sin_right;\n    rand bit [3:0] pdata;\n\n    logic [3:0] q;\n\nendclass\n\nclass usr_generator;\n\n    mailbox #(usr_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(usr_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        usr_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass usr_driver;\n\n    virtual usr_if vif;\n\n    mailbox #(usr_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual usr_if vif,\n        mailbox #(usr_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        usr_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.sel       = tr.sel;\n            vif.sin_left  = tr.sin_left;\n            vif.sin_right = tr.sin_right;\n            vif.pdata     = tr.pdata;\n\n        end\n\n    endtask\n\nendclass\n\nclass usr_monitor;\n\n    virtual usr_if vif;\n\n    mailbox #(usr_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual usr_if vif,\n        mailbox #(usr_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        usr_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.sel       = vif.sel;\n            tr.sin_left  = vif.sin_left;\n            tr.sin_right = vif.sin_right;\n            tr.pdata     = vif.pdata;\n\n            #1;\n\n            tr.q = vif.q;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass usr_scoreboard;\n\n    mailbox #(usr_transaction) mon2sb;\n\n    logic [3:0] exp_q = 4'b0000;\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(usr_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        usr_transaction tr;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            case(tr.sel)\n\n                2'b00:\n                    exp_q = exp_q;\n\n                2'b01:\n                    exp_q = {tr.sin_left, exp_q[3:1]};\n\n                2'b10:\n                    exp_q = {exp_q[2:0], tr.sin_right};\n\n                2'b11:\n                    exp_q = tr.pdata;\n\n            endcase\n\n            if(tr.q === exp_q)\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: SEL=%b PDATA=%b Expected=%b Actual=%b\",\n                    tr.sel,\n                    tr.pdata,\n                    exp_q,\n                    tr.q\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass usr_environment;\n\n    virtual usr_if vif;\n\n    mailbox #(usr_transaction) gen2drv;\n    mailbox #(usr_transaction) mon2sb;\n\n    usr_generator  gen;\n    usr_driver     drv;\n    usr_monitor    mon;\n    usr_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual usr_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    usr_if intf();\n\n    universal_shift_register dut\n    (\n        .clk       (intf.clk),\n        .rst       (intf.rst),\n        .sel       (intf.sel),\n        .sin_left  (intf.sin_left),\n        .sin_right (intf.sin_right),\n        .pdata     (intf.pdata),\n        .q         (intf.q)\n    );\n\n    usr_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.rst       = 1;\n        intf.sel       = 0;\n        intf.sin_left  = 0;\n        intf.sin_right = 0;\n        intf.pdata     = 0;\n\n        repeat(2)\n            @(posedge intf.clk);\n\n        #1;\n\n        intf.rst = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "dpm",
+  "title": "Dual Port Memory",
+  "desc": "Dual-port memory with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule dual_port_ram (\n    input  logic       clk,\n\n    input  logic       we_a,\n    input  logic [3:0] addr_a,\n    input  logic [7:0] data_in_a,\n    output logic [7:0] data_out_a,\n\n    input  logic       we_b,\n    input  logic [3:0] addr_b,\n    input  logic [7:0] data_in_b,\n    output logic [7:0] data_out_b\n);\n\n    logic [7:0] memory [0:15];\n\n    always_ff @(posedge clk) begin\n        if (we_a) begin\n            memory[addr_a] <= data_in_a;\n        end\n        else begin\n            data_out_a <= memory[addr_a];\n        end\n    end\n\n    always_ff @(posedge clk) begin\n        if (we_b) begin\n            memory[addr_b] <= data_in_b;\n        end\n        else begin\n            data_out_b <= memory[addr_b];\n        end\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface dpram_if;\n\n    logic       clk;\n    logic       we_a;\n    logic [3:0] addr_a;\n    logic [7:0] data_in_a;\n    logic [7:0] data_out_a;\n\n    logic       we_b;\n    logic [3:0] addr_b;\n    logic [7:0] data_in_b;\n    logic [7:0] data_out_b;\n\nendinterface\n\nclass dpram_transaction;\n\n    rand bit       we_a;\n    rand bit [3:0] addr_a;\n    rand bit [7:0] data_in_a;\n\n    rand bit       we_b;\n    rand bit [3:0] addr_b;\n    rand bit [7:0] data_in_b;\n\n    logic [7:0] data_out_a;\n    logic [7:0] data_out_b;\n\n    constraint distinct_addr_c\n    {\n        addr_a != addr_b;\n    }\n\nendclass\n\nclass dpram_generator;\n\n    mailbox #(dpram_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(dpram_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        dpram_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass dpram_driver;\n\n    virtual dpram_if vif;\n\n    mailbox #(dpram_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual dpram_if vif,\n        mailbox #(dpram_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        dpram_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.we_a      = tr.we_a;\n            vif.addr_a    = tr.addr_a;\n            vif.data_in_a = tr.data_in_a;\n\n            vif.we_b      = tr.we_b;\n            vif.addr_b    = tr.addr_b;\n            vif.data_in_b = tr.data_in_b;\n\n        end\n\n    endtask\n\nendclass\n\nclass dpram_monitor;\n\n    virtual dpram_if vif;\n\n    mailbox #(dpram_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual dpram_if vif,\n        mailbox #(dpram_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        dpram_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.we_a      = vif.we_a;\n            tr.addr_a    = vif.addr_a;\n            tr.data_in_a = vif.data_in_a;\n            tr.we_b      = vif.we_b;\n            tr.addr_b    = vif.addr_b;\n            tr.data_in_b = vif.data_in_b;\n\n            #1;\n\n            tr.data_out_a = vif.data_out_a;\n            tr.data_out_b = vif.data_out_b;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass dpram_scoreboard;\n\n    mailbox #(dpram_transaction) mon2sb;\n\n    logic [7:0] ref_mem [0:15];\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(dpram_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        dpram_transaction tr;\n        bit ok_a, ok_b;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            if(tr.we_a)\n            begin\n                ref_mem[tr.addr_a] = tr.data_in_a;\n                ok_a = 1'b1;\n            end\n            else\n            begin\n                ok_a = (tr.data_out_a === ref_mem[tr.addr_a]);\n            end\n\n            if(tr.we_b)\n            begin\n                ref_mem[tr.addr_b] = tr.data_in_b;\n                ok_b = 1'b1;\n            end\n            else\n            begin\n                ok_b = (tr.data_out_b === ref_mem[tr.addr_b]);\n            end\n\n            if(ok_a && ok_b)\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: ADDR_A=%h EXP_A=%h ACT_A=%h | ADDR_B=%h EXP_B=%h ACT_B=%h\",\n                    tr.addr_a, ref_mem[tr.addr_a], tr.data_out_a,\n                    tr.addr_b, ref_mem[tr.addr_b], tr.data_out_b\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass dpram_environment;\n\n    virtual dpram_if vif;\n\n    mailbox #(dpram_transaction) gen2drv;\n    mailbox #(dpram_transaction) mon2sb;\n\n    dpram_generator  gen;\n    dpram_driver     drv;\n    dpram_monitor    mon;\n    dpram_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual dpram_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    dpram_if intf();\n\n    dual_port_ram dut\n    (\n        .clk        (intf.clk),\n        .we_a       (intf.we_a),\n        .addr_a     (intf.addr_a),\n        .data_in_a  (intf.data_in_a),\n        .data_out_a (intf.data_out_a),\n        .we_b       (intf.we_b),\n        .addr_b     (intf.addr_b),\n        .data_in_b  (intf.data_in_b),\n        .data_out_b (intf.data_out_b)\n    );\n\n    dpram_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.we_a      = 0;\n        intf.addr_a    = 0;\n        intf.data_in_a = 0;\n        intf.we_b      = 0;\n        intf.addr_b    = 0;\n        intf.data_in_b = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "pe",
+  "title": "Priority Encoder",
+  "desc": "4-to-2 priority encoder with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule priority_encoder_4bit (\n    input  logic [3:0] req,\n    output logic [1:0] code,\n    output logic       valid\n);\n\n    always_comb begin\n        valid = 1'b1;\n        code  = 2'b00;\n\n        casex (req)\n            4'b1xxx: code = 2'b11;\n            4'b01xx: code = 2'b10;\n            4'b001x: code = 2'b01;\n            4'b0001: code = 2'b00;\n            4'b0000: begin\n                code  = 2'b00;\n                valid = 1'b0;\n            end\n            default: begin\n                code  = 2'b00;\n                valid = 1'b0;\n            end\n        endcase\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface pe_if;\n\n    logic [3:0] req;\n    logic [1:0] code;\n    logic       valid;\n\nendinterface\n\nclass pe_transaction;\n\n    rand bit [3:0] req;\n\n    logic [1:0] code;\n    logic       valid;\n\nendclass\n\nclass pe_generator;\n\n    mailbox #(pe_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(pe_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        pe_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass pe_driver;\n\n    virtual pe_if vif;\n\n    mailbox #(pe_transaction) gen2drv;\n    mailbox #(pe_transaction) drv2mon;\n\n    int n;\n\n    function new\n    (\n        virtual pe_if vif,\n        mailbox #(pe_transaction) gen2drv,\n        mailbox #(pe_transaction) drv2mon,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.drv2mon = drv2mon;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        pe_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            vif.req = tr.req;\n\n            #1;\n\n            drv2mon.put(tr);\n\n            #1;\n\n        end\n\n    endtask\n\nendclass\n\nclass pe_monitor;\n\n    virtual pe_if vif;\n\n    mailbox #(pe_transaction) drv2mon;\n    mailbox #(pe_transaction) mon2sb;\n\n    int n;\n\n    function new\n    (\n        virtual pe_if vif,\n        mailbox #(pe_transaction) drv2mon,\n        mailbox #(pe_transaction) mon2sb,\n        int n\n    );\n\n        this.vif     = vif;\n        this.drv2mon = drv2mon;\n        this.mon2sb  = mon2sb;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        pe_transaction tr;\n\n        repeat(n)\n        begin\n\n            drv2mon.get(tr);\n\n            tr.code  = vif.code;\n            tr.valid = vif.valid;\n\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass pe_scoreboard;\n\n    mailbox #(pe_transaction) mon2sb;\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(pe_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        pe_transaction tr;\n\n        logic [1:0] exp_code;\n        logic       exp_valid;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            exp_valid = |tr.req;\n\n            if(tr.req[3])\n                exp_code = 2'b11;\n\n            else if(tr.req[2])\n                exp_code = 2'b10;\n\n            else if(tr.req[1])\n                exp_code = 2'b01;\n\n            else\n                exp_code = 2'b00;\n\n            if((tr.code  === exp_code) &&\n               (tr.valid === exp_valid))\n            begin\n\n                pass++;\n\n            end\n\n            else\n            begin\n\n                fail++;\n\n                $display(\n                    \"ERROR: req=%b Expected=%b,%b Actual=%b,%b\",\n                    tr.req,\n                    exp_code,\n                    exp_valid,\n                    tr.code,\n                    tr.valid\n                );\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n\n    endtask\n\nendclass\n\nclass pe_environment;\n\n    virtual pe_if vif;\n\n    mailbox #(pe_transaction) gen2drv;\n    mailbox #(pe_transaction) drv2mon;\n    mailbox #(pe_transaction) mon2sb;\n\n    pe_generator  gen;\n    pe_driver     drv;\n    pe_monitor    mon;\n    pe_scoreboard sb;\n\n    int n;\n\n    function new\n    (\n        virtual pe_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        drv2mon = new();\n        mon2sb  = new();\n\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            drv2mon,\n            n\n        );\n\n        mon = new(\n            vif,\n            drv2mon,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    pe_if intf();\n\n    priority_encoder_4bit dut\n    (\n        .req   (intf.req),\n        .code  (intf.code),\n        .valid (intf.valid)\n    );\n\n    pe_environment env;\n\n    initial\n    begin\n\n        intf.req = 4'b0000;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n\n        $finish;\n\n    end\n\nendmodule\n"
+ },
+ {
+  "id": "spram",
+  "title": "Single Port RAM",
+  "desc": "Single-port RAM with HVL testbench.",
+  "rtlFile": "rtl/top.sv",
+  "tbFile": "tb/tb_top.sv",
+  "rtl": "`timescale 1ns/1ps\n\nmodule single_port_ram (\n    input  logic       clk,\n    input  logic       we,\n    input  logic [3:0] addr,\n    input  logic [7:0] data_in,\n    output logic [7:0] data_out\n);\n\n    logic [7:0] memory [0:15];\n\n    always_ff @(posedge clk) begin\n        if (we) begin\n            memory[addr] <= data_in;\n        end\n        else begin\n            data_out <= memory[addr];\n        end\n    end\n\nendmodule\n",
+  "tb": "`timescale 1ns/1ps\n\ninterface ram_if;\n\n    logic       clk;\n    logic       we;\n    logic [3:0] addr;\n    logic [7:0] data_in;\n    logic [7:0] data_out;\n\nendinterface\n\nclass ram_transaction;\n\n    rand bit       we;\n    rand bit [3:0] addr;\n    rand bit [7:0] data_in;\n\n    logic [7:0] data_out;\n\nendclass\n\nclass ram_generator;\n\n    mailbox #(ram_transaction) gen2drv;\n    int n;\n\n    function new\n    (\n        mailbox #(ram_transaction) gen2drv,\n        int n\n    );\n\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        ram_transaction tr;\n\n        repeat(n)\n        begin\n\n            tr = new();\n\n            if(!tr.randomize())\n                $display(\"Randomization failed\");\n\n            gen2drv.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass ram_driver;\n\n    virtual ram_if vif;\n\n    mailbox #(ram_transaction) gen2drv;\n\n    int n;\n\n    function new\n    (\n        virtual ram_if vif,\n        mailbox #(ram_transaction) gen2drv,\n        int n\n    );\n\n        this.vif     = vif;\n        this.gen2drv = gen2drv;\n        this.n       = n;\n\n    endfunction\n\n    task run();\n\n        ram_transaction tr;\n\n        repeat(n)\n        begin\n\n            gen2drv.get(tr);\n\n            @(negedge vif.clk);\n\n            vif.we      = tr.we;\n            vif.addr    = tr.addr;\n            vif.data_in = tr.data_in;\n\n        end\n\n    endtask\n\nendclass\n\nclass ram_monitor;\n\n    virtual ram_if vif;\n\n    mailbox #(ram_transaction) mon2sb;\n    int n;\n\n    function new\n    (\n        virtual ram_if vif,\n        mailbox #(ram_transaction) mon2sb,\n        int n\n    );\n\n        this.vif    = vif;\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        ram_transaction tr;\n\n        repeat(n)\n        begin\n\n            @(posedge vif.clk);\n\n            tr = new();\n            tr.we      = vif.we;\n            tr.addr    = vif.addr;\n            tr.data_in = vif.data_in;\n\n            #1;\n\n            tr.data_out = vif.data_out;\n            mon2sb.put(tr);\n\n        end\n\n    endtask\n\nendclass\n\nclass ram_scoreboard;\n\n    mailbox #(ram_transaction) mon2sb;\n\n    logic [7:0] ref_mem [0:15];\n\n    int n;\n    int pass = 0;\n    int fail = 0;\n\n    function new\n    (\n        mailbox #(ram_transaction) mon2sb,\n        int n\n    );\n\n        this.mon2sb = mon2sb;\n        this.n      = n;\n\n    endfunction\n\n    task run();\n\n        ram_transaction tr;\n\n        repeat(n)\n        begin\n\n            mon2sb.get(tr);\n\n            if(tr.we)\n            begin\n\n                ref_mem[tr.addr] = tr.data_in;\n                pass++;\n\n            end\n\n            else\n            begin\n\n                if(tr.data_out === ref_mem[tr.addr])\n                begin\n\n                    pass++;\n\n                end\n\n                else\n                begin\n\n                    fail++;\n\n                    $display(\n                        \"ERROR: ADDR=%h Expected=%h Actual=%h\",\n                        tr.addr,\n                        ref_mem[tr.addr],\n                        tr.data_out\n                    );\n\n                end\n\n            end\n\n        end\n\n        $display(\"PASS = %0d | FAIL = %0d\", pass, fail);\n    endtask\n\nendclass\n\nclass ram_environment;\n\n    virtual ram_if vif;\n\n    mailbox #(ram_transaction) gen2drv;\n    mailbox #(ram_transaction) mon2sb;\n\n    ram_generator  gen;\n    ram_driver     drv;\n    ram_monitor    mon;\n    ram_scoreboard sb;\n    int n;\n\n    function new\n    (\n        virtual ram_if vif,\n        int n\n    );\n\n        this.vif = vif;\n        this.n   = n;\n\n        gen2drv = new();\n        mon2sb  = new();\n        gen = new(\n            gen2drv,\n            n\n        );\n\n        drv = new(\n            vif,\n            gen2drv,\n            n\n        );\n\n        mon = new(\n            vif,\n            mon2sb,\n            n\n        );\n\n        sb = new(\n            mon2sb,\n            n\n        );\n\n    endfunction\n\n    task run();\n\n        fork\n\n            gen.run();\n            drv.run();\n            mon.run();\n            sb.run();\n\n        join\n\n    endtask\n\nendclass\n\nmodule tb_top;\n\n    parameter int N = 100;\n\n    ram_if intf();\n\n    single_port_ram dut\n    (\n        .clk      (intf.clk),\n        .we       (intf.we),\n        .addr     (intf.addr),\n        .data_in  (intf.data_in),\n        .data_out (intf.data_out)\n    );\n\n    ram_environment env;\n\n    initial\n    begin\n\n        intf.clk = 0;\n\n        forever #5\n            intf.clk = ~intf.clk;\n\n    end\n\n    initial\n    begin\n\n        intf.we      = 0;\n        intf.addr    = 0;\n        intf.data_in = 0;\n\n        env = new(\n            intf,\n            N\n        );\n\n        env.run();\n        $finish;\n\n    end\n\nendmodule\n"
+ }
+];
+
+</script>
+<script>
+/* HVL Lab viewer logic — pure ES5, zero dependencies, compatible with old college lab browsers (Firefox ESR, old Chrome, IE11+, file://) */
+(function () {
+  'use strict';
+
+  var exps = window.EXPERIMENTS || [];
+  var grid = document.getElementById('grid');
+  var empty = document.getElementById('empty');
+  var search = document.getElementById('search');
+  var count = document.getElementById('count');
+  var homeView = document.getElementById('homeView');
+  var detailView = document.getElementById('detailView');
+  var toastEl = document.getElementById('toast');
+  var current = null;
+  var toastTimer = null;
+
+  /* ---------- helpers ---------- */
+
+  function setHidden(el, hide) {
+    if (!el) return;
+    el.hidden = !!hide;
+    el.style.display = hide ? 'none' : 'block';
+  }
+
+  function isHidden(el) {
+    if (!el) return true;
+    return !!el.hidden || el.style.display === 'none';
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  var KW = ('module endmodule interface endinterface class endclass function endfunction ' +
+    'task endtask package endpackage program endprogram property endproperty sequence endsequence ' +
+    'covergroup endgroup coverpoint cross constraint solve before foreach unique ' +
+    'input output inout logic bit reg wire signed unsigned int integer longint shortint byte ' +
+    'string real time chandle event semaphore mailbox virtual extends implements ' +
+    'rand randc randcase static automatic const ref new this super return break continue ' +
+    'if else case casex casez endcase default for while do repeat forever fork join join_any join_none ' +
+    'begin end always always_comb always_ff always_latch assign initial final ' +
+    'posedge negedge edge typedef enum struct union packed localparam parameter ' +
+    'import export timescale timeunit timeprecision assert assume cover expect ' +
+    'bins binsof illegal_bins ignore_bins wildcard with inside dist null priority').split(' ');
+
+  function highlight(src) {
+    var e = esc(src);
+    var re = new RegExp(
+      '(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)' +
+      '|("(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\')' +
+      '|(`[A-Za-z_]\\w*)' +
+      '|(\\b\\d[\\w\'h_]*)' +
+      '|\\b(' + KW.join('|') + ')\\b',
+      'g');
+    var out = '';
+    var last = 0;
+    var m;
+    while ((m = re.exec(e)) !== null) {
+      out += e.slice(last, m.index);
+      if (m[1]) out += '<span class="c-com">' + m[1] + '</span>';
+      else if (m[2]) out += '<span class="c-str">' + m[2] + '</span>';
+      else if (m[3]) out += '<span class="c-pp">' + m[3] + '</span>';
+      else if (m[4]) out += '<span class="c-num">' + m[4] + '</span>';
+      else if (m[5]) out += '<span class="c-kw">' + m[5] + '</span>';
+      last = m.index + m[0].length;
+    }
+    out += e.slice(last);
+    return out;
+  }
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.className = 'toast show';
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.className = 'toast'; }, 2000);
+  }
+
+  function selectElementText(el) {
+    try {
+      if (window.getSelection && document.createRange) {
+        var sel = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        return true;
+      } else if (document.body.createTextRange) {
+        var textRange = document.body.createTextRange();
+        textRange.moveToElementText(el);
+        textRange.select();
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function copyText(text, label, fallbackCodeEl) {
+    function done() { toast(label + ' copied'); }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '-9999px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { ta.setSelectionRange(0, ta.value.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+      document.body.removeChild(ta);
+      if (ok) {
+        done();
+      } else if (fallbackCodeEl && selectElementText(fallbackCodeEl)) {
+        toast('Code selected - press Ctrl+C to copy');
+      } else {
+        toast('Select code manually and press Ctrl+C');
+      }
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else {
+        fallback();
+      }
+    } catch (e) {
+      fallback();
+    }
+  }
+
+  function download(filename, text) {
+    try {
+      var urlObj = window.URL || window.webkitURL;
+      if (typeof Blob !== 'undefined' && urlObj && urlObj.createObjectURL) {
+        var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        if (window.navigator && window.navigator.msSaveBlob) {
+          window.navigator.msSaveBlob(blob, filename);
+          toast(filename + ' downloaded');
+          return;
+        }
+        var url = urlObj.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', filename);
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+          document.body.removeChild(a);
+          urlObj.revokeObjectURL(url);
+        }, 150);
+        toast(filename + ' downloaded');
+        return;
+      }
+      var dataA = document.createElement('a');
+      dataA.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+      dataA.setAttribute('download', filename);
+      dataA.style.display = 'none';
+      document.body.appendChild(dataA);
+      dataA.click();
+      document.body.removeChild(dataA);
+      toast(filename + ' downloaded');
+    } catch (err) {
+      toast('Download not supported in this browser');
+    }
+  }
+
+  function safeName(title, suffix) {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') + suffix;
+  }
+
+  /* ---------- home grid ---------- */
+
+  function renderList() {
+    var q = (search.value || '').replace(/^\s+|\s+$/g, '').toLowerCase();
+    grid.innerHTML = '';
+    var shown = 0;
+    for (var i = 0; i < exps.length; i++) {
+      var x = exps[i];
+      if (q && x.title.toLowerCase().indexOf(q) === -1 &&
+          x.desc.toLowerCase().indexOf(q) === -1) continue;
+      shown++;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'card';
+      b.setAttribute('data-id', x.id);
+      b.innerHTML =
+        '<h3>' + esc(x.title) + '</h3>' +
+        '<p>' + esc(x.desc) + '</p>' +
+        '<span class="meta">rtl/top.sv &middot; tb/tb_top.sv</span>';
+      (function (id) {
+        b.addEventListener('click', function () { openExp(id); });
+      })(x.id);
+      grid.appendChild(b);
+    }
+    setHidden(empty, shown !== 0);
+    count.textContent = shown + ' / ' + exps.length;
+  }
+
+  /* ---------- detail ---------- */
+
+  function fillPane(codeId, gutterId, src) {
+    var codeEl = document.getElementById(codeId);
+    var gutterEl = document.getElementById(gutterId);
+    codeEl.innerHTML = highlight(src);
+    var n = src.split('\n').length;
+    var g = '';
+    for (var i = 1; i <= n; i++) g += i + '\n';
+    gutterEl.textContent = g;
+  }
+
+  function combinedText(x) {
+    var tbClean = x.tb.replace(/^\s*`timescale[^\n]*\n+/, '');
+    return x.rtl.replace(/\s+$/, '') + '\n\n' + tbClean.replace(/\s+$/, '') + '\n';
+  }
+
+  function openExp(id) {
+    var x = null;
+    for (var i = 0; i < exps.length; i++) {
+      if (exps[i].id === id) { x = exps[i]; break; }
+    }
+    if (!x) return;
+    current = x;
+    document.getElementById('expTitle').textContent = x.title;
+    document.getElementById('expDesc').textContent = x.desc;
+    document.getElementById('rtlName').textContent = x.rtlFile;
+    document.getElementById('tbName').textContent = x.tbFile;
+    fillPane('rtlCode', 'rtlGutter', x.rtl);
+    fillPane('tbCode', 'tbGutter', x.tb);
+    document.getElementById('rtlScroll').scrollTop = 0;
+    document.getElementById('tbScroll').scrollTop = 0;
+    setHidden(homeView, true);
+    setHidden(detailView, false);
+    try {
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', '#' + x.id);
+      } else {
+        location.hash = x.id;
+      }
+    } catch (e) {}
+    window.scrollTo(0, 0);
+    try { document.getElementById('backBtn').focus(); } catch (e) {}
+  }
+
+  function goHome() {
+    current = null;
+    setHidden(detailView, true);
+    setHidden(homeView, false);
+    try {
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', location.pathname + location.search);
+      } else {
+        location.hash = '';
+      }
+    } catch (e) {}
+    window.scrollTo(0, 0);
+    try { search.focus(); } catch (e) {}
+  }
+
+  /* ---------- events ---------- */
+
+  search.addEventListener('input', renderList);
+  search.addEventListener('keyup', renderList);
+  document.getElementById('backBtn').addEventListener('click', goHome);
+
+  document.getElementById('copyRtlBtn').addEventListener('click', function () {
+    if (current) copyText(current.rtl, 'RTL', document.getElementById('rtlCode'));
+  });
+  document.getElementById('copyTbBtn').addEventListener('click', function () {
+    if (current) copyText(current.tb, 'Testbench', document.getElementById('tbCode'));
+  });
+  document.getElementById('copyAllBtn').addEventListener('click', function () {
+    if (current) copyText(combinedText(current), 'RTL + TB', document.getElementById('rtlCode'));
+  });
+  document.getElementById('dlRtlBtn').addEventListener('click', function () {
+    if (current) download(safeName(current.title, '_rtl.sv'), current.rtl);
+  });
+  document.getElementById('dlTbBtn').addEventListener('click', function () {
+    if (current) download(safeName(current.title, '_tb.sv'), current.tb);
+  });
+  document.getElementById('dlAllBtn').addEventListener('click', function () {
+    if (!current) return;
+    download(safeName(current.title, '_rtl.sv'), current.rtl);
+    setTimeout(function () { download(safeName(current.title, '_tb.sv'), current.tb); }, 250);
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    var k = ev.key || '';
+    var code = ev.keyCode || ev.which || 0;
+    if ((k === 'Escape' || k === 'Esc' || code === 27) && !isHidden(detailView)) {
+      goHome();
+    }
+  });
+
+  /* ---------- init ---------- */
+
+  renderList();
+  var hash = (location.hash || '').replace(/^#/, '');
+  if (hash) openExp(hash);
+})();
+
+</script>
+</body>
+</html>
